@@ -41,7 +41,7 @@ function escapeCsvField(field: string): string {
   return field;
 }
 
-export function toCsv(data: ExportHistoryItem[]): string {
+function toCsv(data: ExportHistoryItem[]): string {
   if (!data || data.length === 0) return "";
   
   const headers = ['Platform', 'Account', 'Password', 'Generated At'];
@@ -55,7 +55,7 @@ export function toCsv(data: ExportHistoryItem[]): string {
   return [headers.join(','), ...rows].join('\n');
 }
 
-export function toTxt(data: ExportHistoryItem[]): string {
+function toTxt(data: ExportHistoryItem[]): string {
   if (!data || data.length === 0) return "";
 
   return data.map(item => {
@@ -70,7 +70,7 @@ export function toTxt(data: ExportHistoryItem[]): string {
   }).join('\n\n');
 }
 
-export function generateExportFilename(data: ExportHistoryItem[]): string {
+function generateExportFilename(data: ExportHistoryItem[]): string {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, '0');
   const month = String(now.getMonth() + 1).padStart(2, '0');
