@@ -5,7 +5,7 @@ import {
   Eye, EyeOff, Copy, Sparkles, History, PlusCircle, FileText, Files, Shield, 
   Zap, CheckCircle, Dna, AlertCircle, Lock, Globe, Trash, Info
 } from 'lucide-react';
-import { genPassword, normalizePlatform, toCsv, toTxt, generateExportFilename, ExportHistoryItem } from '@zaeniahmad/kpwgen';
+import { genPassword, normalizePlatform, type ExportHistoryItem as KpwgenExportHistoryItem } from '@zaeniahmad/kpwgen';
 
 import { 
   GoogleIcon,
@@ -27,10 +27,66 @@ import {
   NpmIcon,
 } from '../public/assets/svg';
 
+export interface ExportHistoryItem extends KpwgenExportHistoryItem {}
+
 const DEFAULT_VERSION = 1;
 const DEFAULT_LEN = 18;
 const DEFAULT_PREFIX = 'Qx9';
 const DEFAULT_SUFFIX = 'K7';
+
+function escapeCsvField(field: string): string {
+  if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+    return `"${field.replace(/"/g, '""')}"`;
+  }
+  return field;
+}
+
+export function toCsv(data: ExportHistoryItem[]): string {
+  if (!data || data.length === 0) return "";
+  
+  const headers = ['Platform', 'Account', 'Password', 'Generated At'];
+  const rows = data.map(item => [
+    escapeCsvField(item.platform),
+    escapeCsvField(item.account || ''),
+    escapeCsvField(item.pwd),
+    escapeCsvField(item.timestamp.toISOString())
+  ].join(','));
+  
+  return [headers.join(','), ...rows].join('\n');
+}
+
+export function toTxt(data: ExportHistoryItem[]): string {
+  if (!data || data.length === 0) return "";
+
+  return data.map(item => {
+    let content = `Platform   : ${item.platform}\n`;
+    if (item.account) {
+      content += `Account    : ${item.account}\n`;
+    }
+    content += `Password   : ${item.pwd}\n` +
+              `Generated  : ${item.timestamp.toLocaleString('id-ID')}\n` +
+              `----------------------------------------`;
+    return content;
+  }).join('\n\n');
+}
+
+export function generateExportFilename(data: ExportHistoryItem[]): string {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  const dateStr = `${day}-${month}-${year}`;
+
+  let platformStr = data.slice(0, 3).map(p => p.platform.replace(/[^a-z0-9]/gi, '')).join('-');
+  
+  if (data.length > 3) {
+    const remaining = data.length - 3;
+    platformStr += `_${remaining}+`;
+  }
+
+  return `Kpwgen_${dateStr}_${platformStr}`;
+}
+
 
 const PasswordStrength = ({ pwd }: { pwd: string }) => {
   type Strength = 'weak' | 'medium' | 'strong' | 'excellent';
