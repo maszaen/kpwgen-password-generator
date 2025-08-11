@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  color-scheme: dark;   
+}
+
+html, body { 
+  font-family: var(--font-rds-space), system-ui, -apple-system, Segoe UI, Roboto, sans-serif; 
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+}
+
+.font-display { 
+  font-family: var(--font-rds-display), var(--font-rds-space), sans-serif !important;
+  @apply font-thin;
+}
+
+.font-mono { 
+  font-family: var(--font-rds-mono), ui-monospace, SFMono-Regular, Menlo, monospace !important; 
+}
+
+.input {
+  @apply w-full bg-transparent text-foreground placeholder:opacity-50 outline-none border border-border rounded-2xl px-4 py-3 focus:ring-2 focus:ring-gray-500/40 transition;
+}
+.btn {
+  @apply inline-flex items-center justify-center border border-border rounded-2xl px-4 py-2 hover:bg-white/5 active:scale-[0.99] transition;
+}
+.card {
+  @apply border border-border rounded-2xl p-6 shadow-card bg-black/40 backdrop-blur;
+}
+.label { @apply text-sm text-muted; }
+.small { @apply text-xs text-muted; }
