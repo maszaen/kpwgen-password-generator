@@ -405,7 +405,7 @@ export default function Page() {
   }, [platform, account]);
 
   useEffect(() => {
-    if (account.trim().length > 0 || (platform.trim().length > 0 && master.length >= 8)) {
+    if (account.trim().length > 0) {
         setShowAdvanced(true);
     }
   }, [account, platform, master]);
@@ -429,7 +429,7 @@ export default function Page() {
 
       const newResults = platforms.map((p, index) => {
         const normalized = raw ? p.trim() : normalizePlatform(p);
-        const currentAccount = accounts.length > 0 ? accounts[index] : undefined;
+        const currentAccount = accounts[index];
         const pwd = genPassword({ 
           masterSecret: master, 
           platform: normalized, 
@@ -486,7 +486,20 @@ export default function Page() {
     document.body.removeChild(a); URL.revokeObjectURL(url);
   };
 
-  const isFormValid = master.length >= 8 && platform.trim().length > 0;
+  const platformsArr = useMemo(
+    () => platform.trim().split(/\s+/).filter(Boolean),
+    [platform]
+  );
+  const accountsArr = useMemo(
+    () => account.trim().split(/\s+/).filter(Boolean),
+    [account]
+  );
+
+  const isFormValid =
+    master.length >= 8 &&
+    platformsArr.length > 0 &&
+    accountsArr.length > 0 &&
+    platformsArr.length === accountsArr.length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 py-8 px-4">

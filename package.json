@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@svgr/webpack": "^8.1.0",
-    "@zaeniahmad/kpwgen": "^3.6.0",
+    "@zaeniahmad/kpwgen": "^5.2.0",
     "lucide-react": "^0.539.0",
     "next": "^14.2.31",
     "react": "18.3.1",
