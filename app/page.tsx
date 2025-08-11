@@ -5,7 +5,7 @@ import {
   Eye, EyeOff, Copy, Sparkles, History, PlusCircle, FileText, Files, Shield, 
   Zap, CheckCircle, Dna, AlertCircle, Lock, Globe, Trash, Info
 } from 'lucide-react';
-import { genPassword, normalizePlatform, type ExportHistoryItem as KpwgenExportHistoryItem } from '@zaeniahmad/kpwgen';
+import { genPassword, normalizePlatform } from '@zaeniahmad/kpwgen';
 
 import { 
   GoogleIcon,
@@ -27,7 +27,12 @@ import {
   NpmIcon,
 } from '../public/assets/svg';
 
-export interface ExportHistoryItem extends KpwgenExportHistoryItem {}
+interface ExportHistoryItem {
+    platform: string;
+    account?: string;
+    pwd: string;
+    timestamp: Date;
+};
 
 const DEFAULT_VERSION = 1;
 const DEFAULT_LEN = 18;
