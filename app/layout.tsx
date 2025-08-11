@@ -3,7 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 
 const rdsSpace = localFont({
-  src: '/assets/fonts/rds-space.woff2',
+  src: '/assets/fonts/grotesk.woff2',
   display: 'swap',
   variable: '--font-rds-space',
 });
@@ -15,7 +15,7 @@ const rdsDisplay = localFont({
 });
 
 const rdsMono = localFont({
-  src: '/assets/fonts/rds-mono.woff2',
+  src: '/assets/fonts/oppo-sans-ver2.woff2',
   display: 'swap',
   variable: '--font-rds-mono',
 });

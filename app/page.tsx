@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { 
   Eye, EyeOff, Copy, Sparkles, History, PlusCircle, FileText, Files, Shield, 
-  Zap, CheckCircle, Dna, AlertCircle, Lock, Globe, Trash, Info
+  Zap, CheckCircle, Dna, AlertCircle, Lock, Globe, Trash, Info, Orbit,
+  DatabaseZap,
 } from 'lucide-react';
 import { genPassword, normalizePlatform } from '@zaeniahmad/kpwgen';
 
@@ -111,7 +112,7 @@ const PasswordStrength = ({ pwd }: { pwd: string }) => {
   const CheckItem = ({ label, valid }: { label: string; valid: boolean }) => (
     <div className={`flex items-center text-xs transition-all duration-300 ${valid ? 'text-blue-300' : 'text-slate-400'}`}>
       <div className={`mr-2 w-3 h-3 rounded-full flex items-center justify-center transition-all duration-300 ${valid ? 'bg-blue-500/20' : 'bg-slate-600/20'}`}>
-        {valid ? <CheckCircle className="w-2 h-2" /> : <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />}
+        {valid ? <CheckCircle className="w-3 h-3 text-emerald-500" /> : <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />}
       </div>
       {label}
     </div>
@@ -127,7 +128,7 @@ const PasswordStrength = ({ pwd }: { pwd: string }) => {
   return (
     <div className={`mt-4 p-4 rounded-xl border transition-all duration-500 ${strengthColors[analysis.strength]}`}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-slate-200">Password Strength</span>
+        <span className="text-sm font-mono font-medium text-slate-200">Password Strength</span>
         <span className={`text-xs font-bold px-2 py-1 rounded-full capitalize ${
           analysis.strength === 'excellent' ? 'bg-blue-500/20 text-blue-200' :
           analysis.strength === 'strong' ? 'bg-blue-600/20 text-blue-300' :
@@ -174,7 +175,7 @@ const FormSection = ({ show, children, delay = 0 }: { show: boolean; children: R
 
   return (
     <div className={`transition-all duration-700 ease-out transform ${
-      isVisible ? 'opacity-100 translate-y-0 max-h-screen' : 'opacity-0 -translate-y-4 max-h-0 overflow-hidden'
+      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 max-h-0 overflow-hidden'
     }`}>
       <div className={`transition-all duration-500 ${isVisible ? 'scale-100' : 'scale-95'}`}>
         {children}
@@ -283,7 +284,7 @@ function LeftPanel({ activeInput }: { activeInput: string | null }) {
           <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/30">
             <Info className="w-4 h-4 text-blue-300" />
           </div>
-          <h3 className="text-slate-100 font-semibold text-base">{getTitle()}</h3>
+          <h3 className="text-slate-100 font-mono font-semibold text-base">{getTitle()}</h3>
         </div>
         {getBody()}
       </div>
@@ -297,8 +298,8 @@ function LeftPanel({ activeInput }: { activeInput: string | null }) {
       >
         <GithubIcon className="w-8 h-8 fill-slate-400 group-hover:text-white transition-colors" />
         <div className="flex-1">
-          <p className="font-semibold text-slate-200 group-hover:text-white transition-colors">
-            GitHub (this website)
+          <p className="font-mono font-semibold text-slate-200 group-hover:text-white transition-colors">
+            GitHub Repository
           </p>
           <p className="text-xs text-slate-400">Give this project a star!</p>
         </div>
@@ -313,10 +314,24 @@ function LeftPanel({ activeInput }: { activeInput: string | null }) {
       >
         <NpmIcon className="fill-slate-400 w-8 h-8 rounded-sm" />
         <div className="flex-1">
-          <p className="font-semibold text-slate-200 group-hover:text-white transition-colors">
-            NPM Package (kpwgen)
+          <p className="font-mono font-semibold text-slate-200 group-hover:text-white transition-colors">
+            Node Package
           </p>
           <p className="text-xs text-slate-400">Check out the core library.</p>
+        </div>
+      </a>
+
+      <a
+        // onClick={loadParameter}
+        rel="noopener noreferrer"
+        className="group flex items-center space-x-4 p-4 rounded-xl border border-slate-700/50 bg-slate-800/50 hover:bg-slate-700/70 hover:border-slate-600 transition-all duration-300"
+      >
+        <DatabaseZap className="text-slate-400 w-8 h-8 rounded-sm" />
+        <div className="flex-1">
+          <p className="font-mono font-semibold text-slate-200 group-hover:text-white transition-colors">
+            Load Parameters
+          </p>
+          <p className="text-xs text-slate-400">load parameters stored in localstorage.</p>
         </div>
       </a>
     </div>
@@ -520,16 +535,22 @@ export default function Page() {
         <div className="lg:col-span-8 order-1 lg:order-2">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500/10 to-slate-500/10 rounded-2xl mb-6 border border-blue-500/20 backdrop-blur-sm">
-              <Shield className="w-10 h-10 text-blue-300" />
+            <div className='flex flex-row items-center justify-center mb-6 pt-3'>
+              <div className="gap-4 flex flex-row items-center justify-center w-fit px-7 h-20 bg-gradient-to-br from-blue-500/10 to-slate-500/10 rounded-2xl border border-blue-500/20 backdrop-blur-sm">
+                <Sparkles strokeWidth='1' className="w-12 h-12 text-purple-300" />
+                <div className='flex flex-col items-start'>
+                  <h4 className='font-mono text-sm text-slate-400'>Powered by:</h4>
+                  <h2 className='font-semibold text-3xl text-slate-200'>KPWGEN</h2>
+                </div>
+              </div>
             </div>
-            <h1 className="font-display text-[3.75rem] leading-[3.5rem] md:text-[6.5rem] md:leading-[5.5rem] font-bold bg-gradient-to-r from-white via-blue-100 to-slate-200 bg-clip-text text-transparent mb-3">
+            <h1 className="font-display w-full pt-5 text-[3.75rem] leading-[3.5rem] md:text-[7.5rem] md:leading-[5.9rem] font-bold bg-gradient-to-r from-white via-blue-100 to-slate-200 bg-clip-text text-transparent mb-3">
               GENERATE UNBREAKABLE <br/>
               PASSWORD IN SECONDS
             </h1>
-            <p className="text-slate-400 max-w-lg mx-auto leading-relaxed text-lg">
-              Generate secure, reproducible passwords with absolute consistency — as long as your inputs remain the same, the result is identical. 
-              <span className="text-black pr-1 bg-gradient-to-r from-white via-blue-100 to-slate-200 font-medium ml-1 rounded-sm"> 100% offline & secure.</span>
+            <p className="text-slate-400 max-w-lg mx-auto text-lg leading-[1.5rem]">
+              Generate secure, reproducible passwords with absolute consistency, as long as your inputs remain the same, the result is identical. 
+              <span className="text-black pr-1 bg-gradient-to-r from-white via-blue-100 to-slate-200 font-medium ml-2 rounded-sm"> 100% offline & secure.</span>
             </p>
 
             {/* Progress Indicator - Updated value */}
@@ -552,7 +573,7 @@ export default function Page() {
                               <path d="M20 6L9 17l-5-5" />
                             </svg>
                           ) : (
-                            <span className="text-xs font-semibold">{i + 1}</span>
+                            <span className="text-xs font-mono font-semibold">{i + 1}</span>
                           )}
                         </div>
                       </div>
@@ -564,14 +585,14 @@ export default function Page() {
           </div>
 
           {/* Main Card */}
-          <div className="bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/50 p-8 relative overflow-hidden">
+          <div className="bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/50 p-4 md:p-8 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/3 to-slate-500/3 rounded-3xl" />
             <div className="relative z-10">
               {/* Master Key (ADD onFocus) */}
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <Lock className="w-5 h-5 text-blue-300" />
-                  <label className="text-sm font-semibold text-slate-200">Master Key</label>
+                  <label className="text-sm font-mono font-semibold text-slate-200">Master Key</label>
                   {master.length >= 8 && <CheckCircle className="w-4 h-4 text-blue-300" />}
                 </div>
                 <div className="relative group">
@@ -601,10 +622,10 @@ export default function Page() {
 
               {/* Platform (ADD onFocus) */}
               <FormSection show={showPlatform} delay={200}>
-                <div className="space-y-3 mt-5">
+                <div className="space-y-3 mt-6">
                   <div className="flex items-center space-x-2">
                     <Globe className="w-5 h-5 text-blue-300" />
-                    <label className="text-sm font-semibold text-slate-200">Platform or Service</label>
+                    <label className="text-sm font-mono font-semibold text-slate-200">Platform / Service</label>
                   </div>
                   <input 
                     type="text"
@@ -631,10 +652,10 @@ export default function Page() {
 
               {/* Account Field (ADD onFocus) */}
               <FormSection show={showAccount} delay={300}>
-                <div className="space-y-3 mt-5">
+                <div className="space-y-3 mt-6">
                   <div className='flex items-center space-x-2'>
                     <Dna className="w-5 h-5 text-blue-300" />
-                    <label className="text-sm font-semibold text-slate-200 flex items-center space-x-2">
+                    <label className="text-sm font-mono font-semibold text-slate-200 flex items-center space-x-2">
                       <span>Account Name</span>
                     </label>
                   </div>
@@ -665,7 +686,7 @@ export default function Page() {
                   className="space-y-6 mt-5 p-6 bg-slate-700/30 rounded-2xl border border-slate-600/30"
                   onFocusCapture={() => setActiveInput('advanced')}
                 >
-                  <h3 className="text-lg font-semibold text-slate-200 flex items-center space-x-2">
+                  <h3 className="text-lg font-mono font-semibold text-slate-200 flex items-center space-x-2">
                     <Sparkles className="w-5 h-5 text-blue-300" />
                     <span>Advanced Settings</span>
                   </h3>
@@ -759,12 +780,12 @@ export default function Page() {
               )}
 
               {/* Results */}
-              {results.length > 0 && (
+              <FormSection show={results.length > 0} delay={100}>
                 <div className="bg-gradient-to-br mt-5 from-blue-500/10 to-slate-500/10 border border-blue-500/20 rounded-2xl p-6 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-blue-200 flex items-center space-x-2">
-                      <CheckCircle className="w-5 h-5" />
-                      <span>Generated Password(s)</span>
+                    <h3 className="text-lg font-mono font-semibold text-blue-200 flex items-center space-x-2">
+                      <Orbit className="w-5 h-5" />
+                      <span>Generated Password{results.length > 1 ? "'s" : ''}</span>
                     </h3>
                     <button 
                       type="button" onClick={() => setShowPassword(!showPassword)} 
@@ -777,10 +798,10 @@ export default function Page() {
 
                   <div className="space-y-6">
                     {results.map((res, index) => (
-                      <div key={index} className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/30">
+                      <div key={index} className="bg-slate-800/50 rounded-xl p-5 border border-purple-500/20">
                         <div className="flex items-center justify-between mb-4">
                           <div className="space-y-1">
-                            <p className="text-sm font-medium text-slate-300">Platform: <span className="text-blue-200 capitalize">{res.platform}</span></p>
+                            <p className="text-sm font-mono font-medium text-slate-300">Platform: <span className="text-blue-200 capitalize">{res.platform}</span></p>
                             {res.account && <p className="text-xs text-slate-400">Account: {res.account}</p>}
                           </div>
                           <button 
@@ -804,15 +825,15 @@ export default function Page() {
                     ))}
                   </div>
                 </div>
-              )}
+              </FormSection>
             </div>
           </div>
 
           {/* History */}
-          {history.length > 0 && (
+          <FormSection show={history.length > 0} delay={100}>
             <div className="mt-12">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-slate-200 flex items-center space-x-3">
+                <h2 className="text-2xl font-mono font-bold text-slate-200 flex items-center space-x-3">
                   <div className="p-2 bg-gradient-to-br from-blue-500/20 to-slate-500/20 rounded-xl border border-blue-500/30">
                     <History className="w-6 h-6 text-blue-300"/>
                   </div>
@@ -896,25 +917,25 @@ export default function Page() {
                 </div>
               </div>
             </div>
-          )}
+          </FormSection>
 
           {/* Footer */}
           <div className="mt-12 text-center">
             <div className="flex items-center justify-center space-x-6 text-xs text-slate-500 mb-4">
-              <div className="flex items-center space-x-2">
+              <div className="flex font-mono items-center space-x-2">
                 <Shield className="w-4 h-4 text-purple-500" />
-                <span>100% Offline</span>
+                <span className='text-slate-400'>100% Offline</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex font-mono items-center space-x-2">
                 <Lock className="w-4 h-4 text-slate-200" />
-                <span>Zero Server Calls</span>
+                <span className='text-slate-400'>Zero Server Calls</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex font-mono items-center space-x-2">
                 <Zap className="w-4 h-4 text-emerald-300" />
-                <span>Instant Generation</span>
+                <span className='text-slate-400'>Instant Generation</span>
               </div>
             </div>
-            <p className="text-slate-600 text-sm">
+            <p className="text-slate-500 text-sm">
               Built with security & privacy in mind. Powered by{' '}
               <a
                 href="https://www.npmjs.com/package/@zaeniahmad/kpwgen"
