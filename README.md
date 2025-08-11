@@ -4,7 +4,7 @@
 
 > **Privacy first:** Works **100% offline** after the initial load. **No telemetry, no network calls, no secret storage.**
 
-**🔗 Live Site:** [https://kpwgen.zaeni.dev](https://kpwgen.zaeni.dev)
+**🔗 Live Site:** [https://kpwgen.vercel.app](https://kpwgen.vercel.app)
 
 ---
 
