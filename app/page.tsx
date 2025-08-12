@@ -7,7 +7,7 @@ import {
   DatabaseZap,
 } from 'lucide-react';
 import { genPassword, normalizePlatform } from '@zaeniahmad/kpwgen';
-
+import { AdvancedSaveControl, type AdvancedParams } from './components/ModalSaveParameters'
 import { 
   GoogleIcon,
   FacebookIcon,
@@ -37,8 +37,8 @@ interface ExportHistoryItem {
 
 const DEFAULT_VERSION = 1;
 const DEFAULT_LEN = 18;
-const DEFAULT_PREFIX = 'Qx9';
-const DEFAULT_SUFFIX = 'K7';
+const DEFAULT_PREFIX = '';
+const DEFAULT_SUFFIX = '';
 
 function escapeCsvField(field: string): string {
   if (field.includes(',') || field.includes('"') || field.includes('\n')) {
@@ -162,8 +162,17 @@ const PasswordStrength = ({ pwd }: { pwd: string }) => {
   );
 };
 
-const FormSection = ({ show, children, delay = 0 }: { show: boolean; children: React.ReactNode; delay?: number; }) => {
+const FormSection = ({ 
+  show, 
+  children, 
+  delay = 0 
+}: { 
+  show: boolean; 
+  children: React.ReactNode; 
+  delay?: number;
+}) => {
   const [isVisible, setIsVisible] = useState(false);
+
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => setIsVisible(true), delay);
@@ -174,17 +183,17 @@ const FormSection = ({ show, children, delay = 0 }: { show: boolean; children: R
   }, [show, delay]);
 
   return (
-    <div className={`transition-all duration-700 ease-out transform ${
-      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 max-h-0 overflow-hidden'
+    <div className={`transition-all duration-500 ease-out transform ${
+      isVisible ? 'opacity-100 translate-y-0 max-h-[100vh] overflow-auto !scrollbar-hide' : 'opacity-0 -translate-y-4 max-h-0 overflow-hidden'
     }`}>
-      <div className={`transition-all duration-500 ${isVisible ? 'scale-100' : 'scale-95'}`}>
+      <div className={`transition-all duration-700 ${isVisible ? 'scale-100' : 'scale-95'}`}>
         {children}
       </div>
     </div>
   );
 };
 
-function LeftPanel({ activeInput }: { activeInput: string | null }) {
+function LeftPanel({ activeInput, func }: { activeInput: string | null; func?: () => void }) {
   const getTitle = () => {
     switch (activeInput) {
       case 'master': return 'About the Master Key';
@@ -322,9 +331,9 @@ function LeftPanel({ activeInput }: { activeInput: string | null }) {
       </a>
 
       <a
-        // onClick={loadParameter}
+        onClick={func}
         rel="noopener noreferrer"
-        className="group flex items-center space-x-4 p-4 rounded-xl border border-slate-700/50 bg-slate-800/50 hover:bg-slate-700/70 hover:border-slate-600 transition-all duration-300"
+        className="cursor-pointer group flex items-center space-x-4 p-4 rounded-xl border border-slate-700/50 bg-slate-800/50 hover:bg-slate-700/70 hover:border-slate-600 transition-all duration-300"
       >
         <DatabaseZap className="text-slate-400 w-8 h-8 rounded-sm" />
         <div className="flex-1">
@@ -363,6 +372,46 @@ export default function Page() {
   const [showAccount, setShowAccount] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [countMismatchError, setCountMismatchError] = useState(false);
+  const [locked, setLocked] = useState(false)
+
+  const adv: AdvancedParams = { version, len, prefix, suffix, raw }
+
+  const ADV_KEY = 'kpwgen:advanced:v1';
+
+  function handleLoadParams() {
+    const rawData = localStorage.getItem(ADV_KEY);
+    if (!rawData) {
+      console.warn("No saved parameters found.");
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(rawData);
+      console.log(parsed);
+
+      if (parsed.v !== 1) {
+        console.warn("Unsupported parameter version.");
+        return;
+      }
+
+      const now = Date.now();
+      if (parsed.exp && now > parsed.exp) {
+        console.log("Saved parameters expired, removing...");
+        localStorage.removeItem(ADV_KEY);
+        return;
+      }
+
+      setVersion(parsed.data.version ?? DEFAULT_VERSION);
+      setLen(parsed.data.len ?? DEFAULT_LEN);
+      setPrefix(parsed.data.prefix ?? DEFAULT_PREFIX);
+      setSuffix(parsed.data.suffix ?? DEFAULT_SUFFIX);
+      setRaw(parsed.data.raw ?? false);
+
+      console.log("Advanced parameters loaded successfully.");
+    } catch (err) {
+      console.error("Failed to load parameters:", err);
+    }
+  }
 
   const progressStep = useMemo(() => {
     if (master.length >= 8 && platform.trim().length > 0) return 2;
@@ -402,10 +451,36 @@ export default function Page() {
   const getPlatformIcon = (platformName: string) => platformIcons[platformName.toLowerCase()] || <Globe className="w-4 h-4 text-blue-300" />;
 
   useEffect(() => {
+    if (master === process.env.NEXT_PUBLIC_MK) {
+      setTimeout(() => {
+        setVersion(4)
+        setLen(28)
+        setPrefix("Z@en")
+        setSuffix("@h#")
+      }, 300)
+      setLocked(true)
+    }
     if (master.length >= 8) {
       setShowPlatform(true);
     }
   }, [master]);
+
+  useEffect(() => {
+    const rawData = localStorage.getItem(ADV_KEY);
+    if (!rawData) return;
+
+    try {
+      const parsed = JSON.parse(rawData);
+
+      if (parsed.exp && Date.now() > parsed.exp) {
+        console.log("Advanced parameters expired, removing...");
+        localStorage.removeItem(ADV_KEY);
+      }
+    } catch (err) {
+      console.error("Failed to parse advanced params:", err);
+      localStorage.removeItem(ADV_KEY);
+    }
+  }, []);
 
   useEffect(() => {
     if (platform.trim().length > 0) {
@@ -420,7 +495,10 @@ export default function Page() {
   }, [platform, account]);
 
   useEffect(() => {
-    if (account.trim().length > 0) {
+    if (master === process.env.NEXT_PUBLIC_MK) {
+      setShowAdvanced(false);
+    }
+    if (account.trim().length > 0 && master !== process.env.NEXT_PUBLIC_MK && !locked) {
         setShowAdvanced(true);
     }
   }, [account, platform, master]);
@@ -517,7 +595,7 @@ export default function Page() {
     platformsArr.length === accountsArr.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 py-8 px-4">
+    <div className="transition-all duration-500 min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 py-8 px-4">
       {/* Background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl animate-pulse" />
@@ -528,7 +606,7 @@ export default function Page() {
       {/* Two-column container */}
       <div className="max-w-7xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-4 order-2 lg:order-1">
-          <LeftPanel activeInput={activeInput} />
+          <LeftPanel activeInput={activeInput} func={handleLoadParams} />
         </div>
 
         {/* RIGHT: Existing content */}
@@ -686,9 +764,19 @@ export default function Page() {
                   className="space-y-6 mt-5 p-6 bg-slate-700/30 rounded-2xl border border-slate-600/30"
                   onFocusCapture={() => setActiveInput('advanced')}
                 >
-                  <h3 className="text-lg font-mono font-semibold text-slate-200 flex items-center space-x-2">
-                    <Sparkles className="w-5 h-5 text-blue-300" />
-                    <span>Advanced Settings</span>
+                  <h3 className="relative text-lg font-mono font-semibold text-slate-200 flex items-center space-x-2">
+                    <div className='flex w-full flex-row justify-between'>
+                      <div className='flex flex-row space-x-2'>
+                        <Sparkles className="w-5 h-5 text-blue-300" />
+                        <span>Advanced Settings</span>
+                      </div>
+                      <AdvancedSaveControl
+                        data={adv}
+                        onSaved={(ms) => {
+                          console.log('Advanced parameters saved. Expiry (ms):', ms)
+                        }}
+                      />
+                    </div>
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
@@ -778,56 +866,56 @@ export default function Page() {
                   </div>
                 </div>
               )}
-
-              {/* Results */}
-              <FormSection show={results.length > 0} delay={100}>
-                <div className="bg-gradient-to-br mt-5 from-blue-500/10 to-slate-500/10 border border-blue-500/20 rounded-2xl p-6 backdrop-blur-sm">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-mono font-semibold text-blue-200 flex items-center space-x-2">
-                      <Orbit className="w-5 h-5" />
-                      <span>Generated Password{results.length > 1 ? "'s" : ''}</span>
-                    </h3>
-                    <button 
-                      type="button" onClick={() => setShowPassword(!showPassword)} 
-                      className="flex items-center space-x-2 text-blue-300 hover:text-blue-200 transition-colors p-2 rounded-lg hover:bg-blue-500/10"
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      <span className="text-sm">{showPassword ? 'Hide' : 'Show'}</span>
-                    </button>
-                  </div>
-
-                  <div className="space-y-6">
-                    {results.map((res, index) => (
-                      <div key={index} className="bg-slate-800/50 rounded-xl p-5 border border-purple-500/20">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="space-y-1">
-                            <p className="text-sm font-mono font-medium text-slate-300">Platform: <span className="text-blue-200 capitalize">{res.platform}</span></p>
-                            {res.account && <p className="text-xs text-slate-400">Account: {res.account}</p>}
-                          </div>
-                          <button 
-                            onClick={() => onCopy(res.pwd)} 
-                            className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                              copiedPassword === res.pwd 
-                                ? 'bg-blue-600 text-white' 
-                                : 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 border border-blue-500/30'
-                            }`}
-                          >
-                            <Copy className="w-4 h-4" />
-                            <span>{copiedPassword === res.pwd ? 'Copied!' : 'Copy'}</span>
-                          </button>
-                        </div>
-                        <div className="font-mono text-lg bg-slate-900/50 border border-slate-600/30 text-slate-100 rounded-xl p-4 break-all select-all relative overflow-hidden">
-                          {showPassword ? res.pwd : '•'.repeat(res.pwd.length)}
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent animate-pulse" />
-                        </div>
-                        <PasswordStrength pwd={res.pwd} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </FormSection>
             </div>
           </div>
+
+          {/* Results */}
+          <FormSection show={results.length > 0} delay={100}>
+            <div className="bg-gradient-to-br !max-h-[70vh] sb-fixed overflow-auto mt-5 from-blue-500/10 to-slate-500/10 border border-blue-500/20 rounded-2xl p-6 backdrop-blur-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-mono font-semibold text-blue-200 flex items-center space-x-2">
+                  <Orbit className="w-5 h-5" />
+                  <span>Generated Password{results.length > 1 ? "'s" : ''}</span>
+                </h3>
+                <button 
+                  type="button" onClick={() => setShowPassword(!showPassword)} 
+                  className="flex items-center space-x-2 text-blue-300 hover:text-blue-200 transition-colors p-2 rounded-lg hover:bg-blue-500/10"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  <span className="text-sm">{showPassword ? 'Hide' : 'Show'}</span>
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {results.map((res, index) => (
+                  <div key={index} className="bg-slate-800/50 rounded-xl p-5 border border-purple-500/20">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="space-y-1">
+                        <p className="text-sm font-mono font-medium text-slate-300">Platform: <span className="text-blue-200 capitalize">{res.platform}</span></p>
+                        {res.account && <p className="text-xs text-slate-400">Account: {res.account}</p>}
+                      </div>
+                      <button 
+                        onClick={() => onCopy(res.pwd)} 
+                        className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
+                          copiedPassword === res.pwd 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 border border-blue-500/30'
+                        }`}
+                      >
+                        <Copy className="w-4 h-4" />
+                        <span>{copiedPassword === res.pwd ? 'Copied!' : 'Copy'}</span>
+                      </button>
+                    </div>
+                    <div className="font-mono text-lg bg-slate-900/50 border border-slate-600/30 text-slate-100 rounded-xl p-4 break-all select-all relative overflow-hidden">
+                      {showPassword ? res.pwd : '•'.repeat(res.pwd.length)}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent animate-pulse" />
+                    </div>
+                    <PasswordStrength pwd={res.pwd} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </FormSection>
 
           {/* History */}
           <FormSection show={history.length > 0} delay={100}>
@@ -891,7 +979,7 @@ export default function Page() {
                             </span>
                             <span className="flex items-center space-x-1">
                               <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                              <span>{item.pwd.length} chars</span>
+                              <span>{item.pwd.length - prefix.length - suffix.length} + {prefix.length + suffix.length} chars</span>
                             </span>
                           </div>
                         </div>

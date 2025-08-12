@@ -11,11 +11,12 @@
   },
   "dependencies": {
     "@svgr/webpack": "^8.1.0",
-    "@zaeniahmad/kpwgen": "^5.2.0",
+    "@zaeniahmad/kpwgen": "^6.0.0",
     "lucide-react": "^0.539.0",
     "next": "^14.2.31",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "tailwind-scrollbar-hide": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.2.1",
